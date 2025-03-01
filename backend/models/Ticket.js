@@ -5,6 +5,11 @@ const TicketSchema = new mongoose.Schema({
         type: Date, 
         default: Date.now 
     },
+    title: { 
+        type: String, 
+        required: true, // or make it optional depending on your requirements
+        default: 'No Title', // You can add a default value if needed
+    },
     location: { 
         type: String, 
         required: true 

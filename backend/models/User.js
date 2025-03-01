@@ -1,30 +1,24 @@
-
 const mongoose = require('mongoose');
-// mongoose.connect("mongodb://localhost:27017/magesDB");
+const bcrypt = require('bcryptjs');
 
-const UserSchema = new mongoose.Schema({
-    googleId: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    name: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    profilePicture: {
-        type: String
-    },
-    role: {
-        type: String,
-        default: 'staff'
-    }
-})
+// User Schema
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
 
-module.exports = mongoose.model('User', UserSchema);
-// const Mage = new mongoose.model("Mage", mageSchema)
+// Hash password before saving to the database
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+// Method to compare entered password with the hashed password
+userSchema.methods.matchPassword = async function(enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+const User = mongoose.model('User', userSchema);
+
+module.exports = User;
